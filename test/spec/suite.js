@@ -9,8 +9,7 @@ let fink = require('../../lib');
 let dbIdx = 0;
 
 let client = require('redis-hook')({
-    db: dbIdx,
-    promisify: true
+    db: dbIdx
 });
 
 function flatten(res) {
@@ -35,26 +34,6 @@ module.exports = (test, Promise) => {
     .then(function(fink) {
 
         this.fink = fink;
-
-        return client.configAsync('GET', 'notify-keyspace-events');
-    })
-    .then(function(NKE) {
-
-        if(!_.isArray(NKE) || !NKE[1]) {
-            return test.end('The notify-keyspace-events setting for Redis is not configured. Cannot test module.');
-        }
-
-        let sent = NKE[1].split('');
-
-        if(_.intersection(['K','E'], sent).length < 2) {
-            return test.end('The notify-keyspace-events setting must contain BOTH (K,E)');
-        }
-
-        if(!~sent.indexOf('A')) {
-            if(!~sent.indexOf('g') || !~sent.indexOf('x') || !~sent.indexOf('$')) {
-                return test.end('The notify-keyspace-events setting must contain (A) OR ALL (g,x,$)');
-            }
-        }
 
         // General logger, which receives message events and stores
         // them in #messages. See below for usage.
